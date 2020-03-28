@@ -1,0 +1,116 @@
+apiVersion: skaffold/v1beta16
+kind: Config
+profiles:
+  - name: ci
+    activation:
+      - env: CI=[^\s]+
+    deploy:
+      kubeContext: eks_dev
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/ci
+  - name: alpha
+    activation:
+      - env: ALPHA=[^\s]+
+    deploy:
+      kubeContext: eks_dev
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/alpha
+        flags:
+          global:
+            - -n=alpha
+  - name: a
+    activation:
+      - env: NAMESPACE=\b(^a$)\b
+    deploy:
+      kubeContext: eks_dev
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/a
+        flags:
+          global:
+            - -n=a
+  - name: b
+    activation:
+      - env: NAMESPACE=\b(^b$)\b
+    deploy:
+      kubeContext: eks_dev
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/b
+        flags:
+          global:
+            - -n=b
+  - name: c
+    activation:
+      - env: NAMESPACE=\b(^c$)\b
+    deploy:
+      kubeContext: eks_dev
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/c
+        flags:
+          global:
+            - -n=c
+  - name: d
+    activation:
+      - env: NAMESPACE=\b(^d$)\b
+    deploy:
+      kubeContext: eks_dev
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/d
+        flags:
+          global:
+            - -n=d
+  - name: staging
+    activation:
+      - kubeContext: eks_staging
+    deploy:
+      kubeContext: eks_staging
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/staging
+        flags:
+          global:
+            - -n=staging
+  - name: aws
+    activation:
+      - kubeContext: aws
+    deploy:
+      kubeContext: aws
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/aws
+        flags:
+          global:
+            - -n=default
+  - name: aks
+    activation:
+      - kubeContext: aks
+    deploy:
+      kubeContext: aks
+      kustomize:
+        buildArgs: ['--enable_alpha_plugins']
+        path: kustomize/overlays/azure
+        flags:
+          global:
+            - -n=default
+
+build:
+  tagPolicy:
+    gitCommit:
+      variant: abbrevcommitsha
+  artifacts:
+  - image: lena/quaroke
+  local:
+    useBuildkit: true
+
+deploy:
+  kubeContext: docker-for-desktop
+  kustomize:
+    path: "kustomize/base"
+    flags:
+      global:
+        - -n=default
